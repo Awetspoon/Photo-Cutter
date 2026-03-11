@@ -1,0 +1,5 @@
+10 — LOCKED: Multi-Select + Reorder (v0.2)
+- Multi-select (Ctrl/Shift/Ctrl+A)
+- Export Selected exports ALL selected (list order filtered)
+- Reorder via Move Up/Down (multi-selection moves as a block)
+- Order persists in project JSON

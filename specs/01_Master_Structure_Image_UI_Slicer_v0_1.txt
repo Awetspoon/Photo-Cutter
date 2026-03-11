@@ -1,0 +1,216 @@
+IMAGE UI SLICER — Master Structure Spec (v0.1)
+For Visual Studio 2026 • Windows Desktop App
+
+============================================================
+0) Purpose (what this app is)
+============================================================
+A Windows desktop tool that lets you load any image (PNG/JPG/WebP/etc.), visually mark “segments/slices” on top of it in a preview panel, then export those segments as separate image assets (PNG with transparency, etc.) for use in building program UIs.
+
+Primary use-case:
+- Take a full “AI-generated UI mockup” image and cut out buttons, panels, icons, corners, borders, and backgrounds into reusable assets.
+
+Non-goals (for v1):
+- Not a full Photoshop replacement
+- Not a full layout builder / UI designer
+- Not a generative AI tool (we can add AI assist later, but v1 focuses on slicing/export)
+
+============================================================
+1) Platform + Tech (recommended default)
+============================================================
+Recommended stack (default):
+- WPF (.NET) + MVVM pattern
+- Visual Studio 2026 solution
+- Image decoding via built-in .NET (plus optional ImageSharp later if needed)
+- Export formats: PNG (default), JPG (optional), WEBP (later)
+
+Storage (v1):
+- Project file: JSON (stores image path + slice definitions)
+- App settings: JSON in AppData
+- Optional: “Portable mode” later
+
+============================================================
+2) Core User Workflow (v1)
+============================================================
+A) Create / Open Project
+1. File > New Project (or “New” on Home)
+2. User selects a source image (UI mockup / screenshot / artwork)
+3. The image loads in the Preview Panel
+
+B) Slice / Segment
+User can create segments in these ways:
+- Rectangle tool: click-drag to draw a rectangle
+- Move/Resize: drag handles on a selected segment
+- Duplicate segment
+- Snap / Guides (basic)
+- Zoom + Pan while editing
+
+C) Organize
+- Each segment gets:
+  - Name (editable)
+  - Tags (optional)
+  - Export settings (format, padding, scale)
+  - Visibility toggle (optional)
+- Segment list (left panel) for selecting/renaming/reordering
+
+D) Export
+- Export selected segments or all
+- Export folder picker
+- Export naming rules:
+  - <name>.png (default)
+  - auto numbering if duplicates
+- Optional “export spritesheet” later (v2)
+
+============================================================
+3) UI Layout (single main window)
+============================================================
+Main Window layout (3-column + bottom bar):
+
+LEFT: “Slices” panel
+- Search / filter
+- List of segments (name + small thumbnail + checkbox)
+- Buttons: Add, Duplicate, Delete, Group (v2), Auto-Name (v2)
+
+CENTER: Preview Panel
+- Image canvas with overlay
+- Tools bar:
+  - Select
+  - Rectangle Slice
+  - Pan
+  - Zoom in/out
+  - Fit to screen / 100%
+- Overlay:
+  - Bounding boxes for slices
+  - Resize handles
+  - Optional grid toggle
+  - Optional safe margin toggle
+
+RIGHT: “Inspector” panel
+- Segment properties:
+  - Name
+  - X, Y, W, H
+  - Padding
+  - Export format (PNG/JPG)
+  - Transparency option (PNG only)
+  - Scale (1x, 2x, custom)
+- Project properties:
+  - Source image path
+  - Default export folder
+  - Default naming rules
+
+BOTTOM: Action bar
+- Open / Save project
+- Export Selected
+- Export All
+- Status text (cursor position, zoom %, slice count)
+
+============================================================
+4) Segment Types (v1)
+============================================================
+Supported slice shapes (v1):
+- Rectangle only (fast + most useful for UI slicing)
+
+Planned (v2+):
+- Rounded rectangle (auto mask)
+- Polygon / freehand (lasso)
+- “9-slice” guides (for scalable UI panels)
+- Auto-detect UI elements (AI-assisted)
+
+============================================================
+5) Project File (JSON) — Draft Schema
+============================================================
+{
+  "version": "0.1",
+  "projectName": "My UI Slices",
+  "sourceImage": {
+    "path": "C:\\path\\to\\image.png",
+    "width": 0,
+    "height": 0
+  },
+  "defaults": {
+    "exportFolder": "C:\\exports",
+    "exportFormat": "png",
+    "padding": 0,
+    "scale": 1
+  },
+  "slices": [
+    {
+      "id": "guid-or-int",
+      "name": "button_primary",
+      "x": 100,
+      "y": 200,
+      "w": 320,
+      "h": 90,
+      "padding": 0,
+      "format": "png",
+      "scale": 1,
+      "notes": ""
+    }
+  ]
+}
+
+============================================================
+6) Export Rules (v1)
+============================================================
+- Export crops from the original image
+- Apply padding (expand crop bounds, clamp inside image)
+- If exporting PNG:
+  - keep alpha if source has it
+  - if no alpha, still export as PNG (fine)
+- Naming:
+  - sanitize to [a-zA-Z0-9_-]
+  - spaces -> underscore
+  - collisions -> _01, _02
+- Output folder structure (v1):
+  - single folder or optional subfolders by tag (v2)
+
+============================================================
+7) Keyboard + Mouse (v1)
+============================================================
+- Mouse wheel: zoom
+- Middle mouse drag (or Space + drag): pan
+- Ctrl+S: save project
+- Ctrl+O: open project
+- Delete: delete selected slice
+- Arrow keys: nudge slice (Shift = 10px)
+
+============================================================
+8) Quality-of-life (v1)
+============================================================
+- Undo/Redo (basic for slice operations)
+- Autosave recovery (optional small v1.1)
+- “Fit image” on load
+- Toggle overlay visibility
+- Zoom indicator
+
+============================================================
+9) Planned Expansion Slots (v2+)
+============================================================
+(Leave architectural “hooks” for these)
+- Auto slice detection (edge/contrast UI element detection)
+- AI-assisted element selection (“detect buttons/panels”)
+- 9-slice editor export (Unity/Godot friendly metadata)
+- Sprite sheet packing + metadata export (JSON, TexturePacker, etc.)
+- Batch mode: load multiple images, export all projects
+- Template packs: common UI parts naming sets
+
+============================================================
+10) Build Deliverables (what I will generate next)
+============================================================
+Next spec files we’ll create (downloadable):
+- 02_UI_Wireframe_and_Controls.txt
+- 03_Data_Model_and_Classes.txt
+- 04_Commands_Tools_and_Shortcuts.txt
+- 05_Export_System_Details.txt
+- 06_VS_Solution_Folder_Structure.txt
+Then I’ll generate:
+- A full Visual Studio solution scaffold (WPF + MVVM) with placeholder views, viewmodels, and services.
+
+============================================================
+11) Open Questions (you can answer now or later)
+============================================================
+1) Do you want “project files” (save/load slices) in v1?
+   - Recommended: yes
+2) Do you want export at multiple scales (1x/2x) in v1?
+3) Do you want the app to be “portable” (save next to exe) or AppData?
+4) Any target engines/frameworks for export presets?
+   - e.g. Unity, Godot, WinForms, WPF, web

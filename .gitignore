@@ -1,0 +1,46 @@
+# Build outputs
+**/bin/
+**/obj/
+
+# Local SDK/NuGet caches
+.dotnet/
+.dotnet-cli/
+.nuget/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.rsuser
+
+# Test and coverage
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# Logs and temp
+*.log
+*.tmp
+*.temp
+*.bak
+*.orig
+
+# OS junk
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Publish artifacts
+publish/
+artifacts/
+dist/

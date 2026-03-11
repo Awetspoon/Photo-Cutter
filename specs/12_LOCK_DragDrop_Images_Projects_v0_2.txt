@@ -1,0 +1,6 @@
+12 — LOCKED: Drag & Drop (v0.2)
+- Drop .iusproj -> open project
+- Drop image -> new project from image
+- Project priority in mixed drops
+- Multiple images -> user picks one
+- Unsaved changes prompt: Save / Discard / Cancel

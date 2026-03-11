@@ -1,0 +1,126 @@
+LOCKED DECISIONS SUMMARY (Baseline) — Image UI Slicer
+Version: v0.1-baseline
+Target: Visual Studio 2026 • Windows Desktop
+
+Last updated: 2026-03-03 (Europe/London)
+
+============================================================
+A) What this app is (Locked)
+============================================================
+A Windows desktop tool that loads any image (UI mockups, screenshots, AI-generated UI art, etc.)
+and lets the user cut out UI elements by drawing freehand selections (Photoshop-ish),
+previewing them, committing them into a cutout list, and exporting them as separate image assets
+(primarily PNG with transparency) for use in building programs.
+
+============================================================
+B) Tech + Platform (Locked)
+============================================================
+- Windows Desktop app built in Visual Studio 2026
+- UI framework: WPF (.NET)
+- Canvas/rendering: SkiaSharp (selected to support smooth freehand selection + masking)
+
+============================================================
+C) Core Workflow (Locked)
+============================================================
+1) Load image into Canvas preview
+2) Draw Active Selection using freehand lasso (Photoshop-ish)
+3) See selection overlay preview BEFORE committing
+4) Commit Selection → Cutout
+5) Repeat to create as many cutouts as desired (Cutouts count shows N)
+6) Export Selected or Export All cutouts as image files
+
+============================================================
+D) Selection + Cutouts Model (Locked)
+============================================================
+Key terms:
+- Active Selection (temporary): the current selection drawn on the image (previewable)
+- Cutout (committed): a saved mask/path derived from a selection, stored in the Cutouts list
+
+Locked interaction goals:
+- Freehand cutting (not rectangle-only slicing)
+- Visual overlay preview on the canvas
+- Multiple committed cutouts per project (shows how many exist)
+
+============================================================
+E) UI Layout (High-level Locked)
+============================================================
+Single main window with 3 panels + bottom export bar:
+
+LEFT — Cutouts Panel
+- Header shows “Cutouts (N)”
+- List shows thumbnails + names
+- Controls: Commit Selection → Cutout, Delete, (Duplicate optional later)
+
+CENTER — Canvas
+- Renders source image
+- Overlays:
+  - Active Selection (tinted fill + outline)
+  - Cutout outlines (toggle on/off)
+  - Selected cutout highlight
+
+RIGHT — Inspector
+- Shows details for:
+  - Active Selection (bbox + preview thumbnail)
+  - Selected Cutout (name, bbox, export settings)
+
+BOTTOM — Export Bar
+- Export Selected
+- Export All
+- Export folder picker + status
+
+============================================================
+F) Export Rules (Locked for v1)
+============================================================
+- Primary export format: PNG with transparency
+- Each cutout export:
+  - Crop to cutout bounding box
+  - Apply mask/clip from freehand path
+  - Save sanitized name, add suffix if collisions
+
+============================================================
+G) Data Representation (Partially Locked)
+============================================================
+- Cutouts store geometry in IMAGE coordinates (not screen coordinates)
+- Each cutout stores:
+  - id, name
+  - path points (x,y list), mode (freehand/polygon), closed=true
+  - cached bounding box (x,y,w,h)
+  - export settings (format=png, scale, padding)
+
+Not yet locked:
+- Whether Active Selection is saved to project file as a draft
+
+============================================================
+H) Not Locked Yet (Open Decisions)
+============================================================
+1) Project files (save/load):
+   - include slice/cutout geometry and source image reference
+2) Commit behavior:
+   - clear selection after commit vs keep selection
+3) Polygon lasso included in v1 or later
+4) Add/Subtract selection modes included in v1 or later
+5) Undo/Redo depth and scope
+6) Export scales (1x/2x/custom) in v1
+7) Settings storage:
+   - AppData vs portable mode
+8) Post-commit cutout editing:
+   - move/scale cutout masks, rename only, etc.
+
+============================================================
+I) Current Spec Files (References)
+============================================================
+- 01_Master_Structure_Image_UI_Slicer_v0_1.txt
+- 02_Freehand_Selection_and_Cutouts_WPF_SkiaSharp_v0_1.txt
+
+============================================================
+J) Next Spec File to Create (Recommended)
+============================================================
+03_Data_Model_and_MVVM_Classes.txt
+- ViewModels: Main, Canvas, Cutouts, Inspector
+- Services: ImageService, ProjectService, ExportService, RecentFiles
+- Commands + state machine (Active Selection vs Selected Cutout)
+- SkiaSharp canvas integration boundary
+
+
+
+v0.2 LOCKS: A+B+C+D (multi-select+reorder, prefix naming, drag&drop, move/nudge)

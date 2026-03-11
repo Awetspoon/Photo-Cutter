@@ -1,0 +1,5 @@
+13 — LOCKED: Move/Nudge Cutouts After Commit (v0.2)
+- Arrow: 1px, Shift+Arrow: 10px
+- Applies to single or multi-selection
+- Clamped within image bounds
+- Undoable

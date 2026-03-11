@@ -1,0 +1,5 @@
+11 — LOCKED: Export Prefix + Naming Controls (v0.2)
+- Naming dropdown: Auto Numbered (default) / Use Cutout Names
+- Prefix textbox applies to both modes
+- Auto numbered uses list order (or filtered selection order)
+- No silent overwrite; suffix _01, _02…

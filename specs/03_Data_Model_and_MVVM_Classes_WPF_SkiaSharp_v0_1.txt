@@ -1,0 +1,362 @@
+03 — Data Model + MVVM Classes (WPF + SkiaSharp) Spec
+Image UI Slicer • v0.1 • Visual Studio 2026
+
+LOCKED INPUTS USED
+- Commit behavior: 1A → Commit Selection clears Active Selection after creating Cutout.
+
+============================================================
+0) Goal of this section
+============================================================
+Define the internal architecture so we can generate a clean Visual Studio scaffold:
+- MVVM ViewModels and responsibilities
+- Models (Project, Cutout, Selection)
+- Services (Image loading, Project save/load, Export)
+- Commands and application state rules
+- SkiaSharp canvas integration boundary (no MVVM leakage into drawing code)
+
+Note:
+- Polygon Lasso is included as a supported tool in the architecture (toggleable).
+  If you later decide “polygon lasso later”, we can hide/disable the tool without redesign.
+
+============================================================
+1) Solution + Project Layout (recommended)
+============================================================
+Solution: ImageUiSlicer.sln
+Project: ImageUiSlicer (WPF .NET)
+
+Folders (inside project):
+- App/
+  - App.xaml, App.xaml.cs
+  - Bootstrapper.cs (DI + startup)
+- Views/
+  - MainWindow.xaml
+  - Panels/ (UserControls)
+    - CutoutsPanel.xaml
+    - InspectorPanel.xaml
+    - ToolbarPanel.xaml
+    - ExportBar.xaml
+  - Canvas/
+    - SkiaCanvasView.xaml (hosts SKElement)
+- ViewModels/
+  - MainViewModel.cs
+  - CanvasViewModel.cs
+  - CutoutsViewModel.cs
+  - InspectorViewModel.cs
+  - ExportViewModel.cs
+- Models/
+  - ProjectModel.cs
+  - SourceImageModel.cs
+  - CutoutModel.cs
+  - SelectionModel.cs
+  - PathGeometryModel.cs
+  - ExportOptionsModel.cs
+- Services/
+  - ImageService.cs
+  - ProjectService.cs
+  - ExportService.cs
+  - DialogService.cs (file/folder pickers)
+  - RecentFilesService.cs (optional)
+  - SettingsService.cs (optional)
+- Infrastructure/
+  - RelayCommand.cs
+  - ObservableObject.cs
+  - MessageBus.cs (optional event aggregator)
+  - JsonConverters/ (for geometry)
+- CanvasEngine/
+  - CanvasController.cs (tool/state coordinator)
+  - RenderEngine.cs (Skia render loop wrapper)
+  - Tools/
+    - ITool.cs
+    - SelectTool.cs
+    - LassoTool.cs
+    - PolygonLassoTool.cs
+  - Geometry/
+    - PathBuilder.cs
+    - PathSimplifier.cs (optional v1.1)
+    - BBox.cs
+  - HitTest/
+    - CutoutHitTester.cs
+
+============================================================
+2) Application State Machine (locked rules)
+============================================================
+Top-level state is managed by MainViewModel + CanvasController.
+
+States:
+- NoImageLoaded
+- ImageLoaded (default)
+- ActiveSelectionExists (sub-state of ImageLoaded)
+- CutoutSelected (sub-state of ImageLoaded)
+
+Rules (v1):
+- There is at most ONE Active Selection at a time.
+- Commit Selection → Cutout:
+  - Creates new CutoutModel from Active Selection
+  - Adds to ProjectModel.Cutouts
+  - Clears Active Selection (LOCKED by user: 1A)
+  - Selects the newly created Cutout (recommended behavior)
+- Deleting a cutout:
+  - Removes it from list
+  - Clears selection if it was selected
+- Switching tools does NOT destroy selection unless user clears.
+
+============================================================
+3) Models (data-only)
+============================================================
+3.1 ProjectModel
+- string Version
+- string ProjectName
+- SourceImageModel SourceImage
+- ObservableCollection<CutoutModel> Cutouts
+- ExportOptionsModel Defaults
+- string? ProjectFilePath (not serialized)
+
+3.2 SourceImageModel
+- string Path
+- int PixelWidth
+- int PixelHeight
+- string? Fingerprint (optional hash, later)
+
+3.3 CutoutModel
+- string Id
+- string Name
+- PathGeometryModel Geometry
+- BBox BBox (cached)
+- ExportOptionsModel ExportOptions
+- bool IsVisible (overlay toggle)
+- string? Notes
+- Bitmap thumbnail cache (not serialized; regenerated)
+
+3.4 SelectionModel (Active Selection)
+- PathGeometryModel Geometry
+- BBox BBox
+- bool HasSelection
+
+3.5 PathGeometryModel
+- string Type = "path"
+- string Mode = "freehand" | "polygon"
+- List<PointF> Points
+- bool Closed = true
+(Reserved for v2: multi-contour paths / holes)
+
+3.6 ExportOptionsModel
+- string Format = "png" (v1 fixed)
+- int Scale = 1 (or float)
+- int Padding = 0
+
+============================================================
+4) ViewModels (MVVM)
+============================================================
+4.1 MainViewModel (app orchestration)
+Responsibilities:
+- Holds current ProjectModel
+- Coordinates save/open/new
+- Wires child VMs
+- Controls top-level commands and window title
+
+Key properties:
+- ProjectModel CurrentProject
+- bool HasImage
+- string StatusText
+- string WindowTitle
+- bool ShowCutoutsOverlay (global toggle)
+
+Commands:
+- NewProjectCommand
+- OpenProjectCommand
+- SaveProjectCommand
+- SaveProjectAsCommand
+- LoadImageCommand
+- ExportAllCommand
+- ExportSelectedCommand
+
+4.2 CanvasViewModel (UI-facing canvas state)
+Responsibilities:
+- Exposes zoom/pan values to UI (but actual rendering is in CanvasEngine)
+- Exposes currently selected cutout id
+- Exposes ActiveSelection summary (bbox, has selection)
+
+Key properties:
+- double Zoom
+- Point Pan
+- SelectionModel ActiveSelection (read-only binding)
+- CutoutModel? SelectedCutout
+- ToolType ActiveTool
+- SelectionModifyMode ModifyMode (Replace/Add/Subtract — optional toggles)
+
+Commands:
+- SetToolCommand (Select/Lasso/Polygon)
+- ClearSelectionCommand
+- FitToScreenCommand
+- Zoom100Command
+
+4.3 CutoutsViewModel (left panel)
+Responsibilities:
+- Cutouts list + selection
+- Commit selection button enablement
+- Delete/rename cutout flows
+
+Key properties:
+- ObservableCollection<CutoutModel> Cutouts (bind to ProjectModel.Cutouts)
+- CutoutModel? SelectedCutout
+- int CutoutCount
+
+Commands:
+- CommitSelectionToCutoutCommand
+- DeleteCutoutCommand
+- RenameCutoutCommand (or inline)
+- ToggleVisibilityCommand
+
+4.4 InspectorViewModel (right panel)
+Responsibilities:
+- Shows either Active Selection details or Selected Cutout details
+- Validates names, scale/padding settings
+
+Key properties:
+- bool ShowingActiveSelection
+- SelectionDetails (BBox, preview image)
+- CutoutDetails (Name, bbox, export settings)
+
+4.5 ExportViewModel (bottom bar)
+Responsibilities:
+- Export folder selection
+- Shows export status
+
+Properties:
+- string ExportFolder
+- bool CanExportSelected
+- bool CanExportAll
+
+Commands:
+- PickExportFolderCommand
+- ExportSelectedCommand
+- ExportAllCommand
+
+============================================================
+5) Services (testable logic)
+============================================================
+5.1 ImageService
+- LoadBitmap(string path) -> (SKBitmap + metadata)
+- Supports: PNG/JPG/WebP (WebP depends on codec; can add ImageSharp if needed)
+- Provides a “renderable” bitmap for Skia
+
+5.2 ProjectService (JSON)
+- NewProject(imagePath) -> ProjectModel
+- Save(ProjectModel, filePath)
+- Load(filePath) -> ProjectModel
+- Validates missing image path:
+  - prompt user to locate file (via DialogService)
+
+5.3 ExportService (mask-based export)
+Core method:
+- ExportCutout(ProjectModel project, CutoutModel cutout, string folder)
+Implementation (Skia):
+- Load source bitmap (or reuse cached)
+- Compute bbox
+- Create target SKBitmap (transparent)
+- Build SKPath from cutout.Geometry.Points
+- Translate so bbox aligns to 0,0
+- Clip to path
+- Draw source image
+- Encode PNG to disk
+
+Also:
+- ExportAll(ProjectModel project, folder)
+
+5.4 DialogService
+- OpenFileDialog / SaveFileDialog / FolderPicker wrappers
+- Keeps ViewModels clean
+
+5.5 SettingsService (optional v1)
+- Store recent export folder
+- Store last open directory
+(Actual storage location not locked yet; can default AppData)
+
+============================================================
+6) CanvasEngine (Skia integration boundary)
+============================================================
+Goal: Keep Skia draw loop + tool interactions out of ViewModels.
+
+6.1 SkiaCanvasView (View)
+- Hosts SKElement (or SKGLControl if desired)
+- Subscribes mouse events and forwards to CanvasController
+- Calls RenderEngine.Invalidate()
+
+6.2 CanvasController (core interaction)
+Owns:
+- Current bitmap reference
+- Tool instances
+- Current zoom/pan (or receives from VM)
+- Current Active Selection geometry
+- Hit testing to select cutouts
+
+Public methods:
+- SetTool(ToolType)
+- SetModifyMode(Replace/Add/Subtract)
+- OnMouseDown/Move/Up/Wheel
+- ClearSelection()
+- CommitSelectionToCutout() -> CutoutModel
+- SelectCutoutAt(point)
+- Render(SKCanvas canvas)
+
+Data flow:
+- CanvasController writes to ProjectModel / SelectionModel via injected references
+- ViewModels observe changes and update UI (INotifyPropertyChanged)
+
+6.3 Tools (ITool)
+Interface:
+- OnMouseDown/Move/Up
+- RenderOverlay(SKCanvas)
+- bool IsBusy (e.g., polygon in-progress)
+
+LassoTool:
+- Collect points while dragging
+- OnUp: close path, finalize Active Selection
+PolygonLassoTool:
+- Add point on click
+- Preview edge to cursor
+- Close on double click/Enter
+SelectTool:
+- Hit test cutouts, set SelectedCutout
+
+Selection Modify (optional v1):
+- Replace: set ActiveSelection = new path
+- Add/Subtract: combine paths (requires path boolean ops)
+NOTE: Path boolean ops add complexity.
+Recommended v1: implement Replace only; Add/Subtract can be stubbed.
+
+============================================================
+7) Commands + Enablement Rules (key UX)
+============================================================
+CommitSelectionToCutoutCommand enabled when:
+- ActiveSelection.HasSelection == true
+AND
+- Image is loaded
+
+ExportSelected enabled when:
+- SelectedCutout != null
+
+ExportAll enabled when:
+- Cutouts.Count > 0
+
+Save enabled when:
+- Project exists + has image path
+
+============================================================
+8) Error Handling (v1)
+============================================================
+- Missing image file on project load:
+  - show dialog “Locate Image”
+- Export folder missing:
+  - prompt user to pick folder
+- Invalid geometry (too few points):
+  - show status “Selection too small” and do not commit
+
+============================================================
+9) Next file to generate
+============================================================
+04_Commands_Tools_and_Shortcuts.txt
+- Exact UI buttons list
+- Exact shortcut list
+- Precise mouse interactions
+- Confirm polygon lasso inclusion + add/subtract decision

@@ -1,0 +1,13 @@
+IMAGE UI SLICER — FULL MASTER LOCK SPEC (v0.2 — A+B+C+D)
+Target: Visual Studio 2026 • Windows • WPF + SkiaSharp
+Last updated: 2026-03-04
+
+LOCKED:
+- Freehand + polygon lasso selection with preview before commit
+- Commit Selection -> Cutout clears selection (1A)
+- Multi-select + reorder cutouts (Up/Down)
+- Export folder: BaseExportFolder\cut outs\
+- Default export naming: numbered 001.. in list order
+- Export naming override + Prefix textbox
+- Drag & drop image/project with unsaved-changes prompt
+- Move/nudge cutouts after commit (Arrow / Shift+Arrow), clamped, undoable

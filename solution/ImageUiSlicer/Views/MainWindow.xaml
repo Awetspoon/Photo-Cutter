@@ -1,0 +1,1088 @@
+﻿<Window x:Class="ImageUiSlicer.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:ImageUiSlicer.ViewModels"
+        xmlns:views="clr-namespace:ImageUiSlicer.Views"
+        Title="{Binding WindowTitle}"
+        Width="1460"
+        Height="780"
+        MinWidth="1220"
+        MinHeight="660"
+        Background="#0B1116"
+        WindowStartupLocation="CenterScreen"
+        AllowDrop="True"
+        Drop="Window_Drop"
+        Closing="Window_Closing"
+        Icon="/Assets/Icons/ImageUiSlicer_Icon.ico">
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <SolidColorBrush x:Key="PanelBrush" Color="#121B22" />
+        <SolidColorBrush x:Key="PanelBrushAlt" Color="#16222A" />
+        <SolidColorBrush x:Key="PanelBorderBrush" Color="#253843" />
+        <SolidColorBrush x:Key="AccentBrush" Color="#FF975A" />
+        <SolidColorBrush x:Key="AccentBrushAlt" Color="#3FDAC9" />
+        <SolidColorBrush x:Key="MutedBrush" Color="#97AAB3" />
+        <SolidColorBrush x:Key="TextBrush" Color="#F1F6F8" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#10181E" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.WindowTextBrushKey}" Color="#F1F6F8" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF975A" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#10171C" />
+
+        <Style x:Key="CardBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource PanelBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="18" />
+            <Setter Property="Padding" Value="16" />
+        </Style>
+
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="Background" Value="#20303A" />
+            <Setter Property="BorderBrush" Value="#35515F" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="11,6" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="#29404B" />
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#4B7387" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="#18262E" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="AccentButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#C8612E" />
+            <Setter Property="BorderBrush" Value="#FFB186" />
+        </Style>
+
+        <Style x:Key="ToolRadioStyle" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="Background" Value="#152028" />
+            <Setter Property="BorderBrush" Value="#2E4651" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Chrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="#FF975A" />
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#FFD4BF" />
+                                <Setter Property="Foreground" Value="#10171C" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#4B7387" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="Background" Value="#10181E" />
+            <Setter Property="BorderBrush" Value="#30434D" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="Background" Value="#10181E" />
+            <Setter Property="BorderBrush" Value="#30434D" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="11,6" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="MinHeight" Value="38" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border x:Name="Chrome"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="10"
+                                    SnapsToDevicePixels="True"
+                                    TextElement.Foreground="{TemplateBinding Foreground}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="34" />
+                                    </Grid.ColumnDefinitions>
+                                    <ContentPresenter Grid.Column="0"
+                                                      Margin="{TemplateBinding Padding}"
+                                                      VerticalAlignment="Center"
+                                                      HorizontalAlignment="Left"
+                                                      Content="{TemplateBinding SelectionBoxItem}"
+                                                      ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                      IsHitTestVisible="False" />
+                                    <Border x:Name="ChevronPanel"
+                                            Grid.Column="1"
+                                            Background="#15212A"
+                                            BorderBrush="#26424E"
+                                            BorderThickness="1,0,0,0"
+                                            CornerRadius="0,10,10,0">
+                                        <Path Data="M 0 0 L 5 5 L 10 0"
+                                              Stroke="#D6E4E8"
+                                              StrokeThickness="1.8"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <ToggleButton x:Name="DropDownToggle"
+                                          Focusable="False"
+                                          ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          OverridesDefaultStyle="True"
+                                          Opacity="0">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="Transparent" />
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <Popup x:Name="PART_Popup"
+                                   Placement="Bottom"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Slide"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}">
+                                <Border x:Name="DropDownBorder"
+                                        Margin="0,6,0,0"
+                                        MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                        MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                                        Background="#16222A"
+                                        BorderBrush="#4B7387"
+                                        BorderThickness="1"
+                                        CornerRadius="12"
+                                        Padding="4"
+                                        SnapsToDevicePixels="True"
+                                        TextElement.Foreground="{TemplateBinding Foreground}">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                  CanContentScroll="True"
+                                                  SnapsToDevicePixels="True">
+                                        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#4B7387" />
+                                <Setter TargetName="ChevronPanel" Property="Background" Value="#1B2A34" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#FF975A" />
+                            </Trigger>
+                            <Trigger Property="IsDropDownOpen" Value="True">
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#FF975A" />
+                                <Setter TargetName="ChevronPanel" Property="Background" Value="#243743" />
+                                <Setter TargetName="ChevronPanel" Property="BorderBrush" Value="#35515F" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.55" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="Background" Value="#10181E" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="Margin" Value="0,1,0,1" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Chrome"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="#20323B" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="#FF975A" />
+                                <Setter Property="Foreground" Value="#10171C" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ListBox">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+        </Style>
+
+        <Style TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0,0,0,10" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Chrome"
+                                Background="#142028"
+                                BorderBrush="#22333D"
+                                BorderThickness="1"
+                                CornerRadius="14"
+                                Padding="10">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="#20323B" />
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#FF975A" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#4B7387" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModernScrollThumbStyle" TargetType="Thumb">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border Margin="2"
+                                CornerRadius="5"
+                                Background="#3A5568" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModernScrollBarButtonStyle" TargetType="RepeatButton">
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton">
+                        <Border Background="Transparent" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ScrollBar">
+            <Setter Property="Background" Value="#0D161D" />
+            <Setter Property="Width" Value="12" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton x:Name="DecreaseButton"
+                                                  Style="{StaticResource ModernScrollBarButtonStyle}" />
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Style="{StaticResource ModernScrollThumbStyle}" />
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton x:Name="IncreaseButton"
+                                                  Style="{StaticResource ModernScrollBarButtonStyle}" />
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Orientation" Value="Vertical">
+                                <Setter Property="Width" Value="12" />
+                                <Setter Property="Height" Value="Auto" />
+                                <Setter TargetName="DecreaseButton" Property="Command" Value="{x:Static ScrollBar.LineUpCommand}" />
+                                <Setter TargetName="IncreaseButton" Property="Command" Value="{x:Static ScrollBar.LineDownCommand}" />
+                                <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="True" />
+                            </Trigger>
+                            <Trigger Property="Orientation" Value="Horizontal">
+                                <Setter Property="Width" Value="Auto" />
+                                <Setter Property="Height" Value="12" />
+                                <Setter TargetName="DecreaseButton" Property="Command" Value="{x:Static ScrollBar.LineLeftCommand}" />
+                                <Setter TargetName="IncreaseButton" Property="Command" Value="{x:Static ScrollBar.LineRightCommand}" />
+                                <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="PaneSplitterStyle" TargetType="GridSplitter">
+            <Setter Property="Width" Value="8" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="ResizeBehavior" Value="PreviousAndNext" />
+            <Setter Property="ShowsPreview" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GridSplitter">
+                        <Border x:Name="Chrome"
+                                Margin="3,6"
+                                CornerRadius="2"
+                                Background="#1E3340" />
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="#FF975A" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="#FF975A" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Padding="10,10,10,8" CornerRadius="22" Margin="0,0,0,8">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#1B2D36" Offset="0" />
+                    <GradientStop Color="#121A20" Offset="0.55" />
+                    <GradientStop Color="#3C2018" Offset="1" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <DockPanel Grid.Row="0" LastChildFill="False">
+                    <StackPanel DockPanel.Dock="Left">
+                        <TextBlock Text="PHOTO CUTTER"
+                                   Foreground="{StaticResource TextBrush}"
+                                   FontSize="32"
+                                   FontWeight="SemiBold"
+                                   FontFamily="Bahnschrift SemiCondensed"
+                                   LineHeight="34" />
+                        <TextBlock Margin="0,4,0,0"
+                                   Foreground="#D7E3E8"
+                                   FontSize="13"
+                                   Text="Turn full mockups into crisp, transparent assets for app builds." />
+                    </StackPanel>
+
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
+                        <Button Content="Open Image" Style="{StaticResource AccentButtonStyle}" Click="OpenImage_Click" />
+                        <Button Content="Open Project" Style="{StaticResource ActionButtonStyle}" Click="OpenProject_Click" />
+                        <Button Content="Save" Style="{StaticResource ActionButtonStyle}" Click="SaveProject_Click" />
+                        <Button Content="Save As" Style="{StaticResource ActionButtonStyle}" Click="SaveProjectAs_Click" Margin="0" />
+                    </StackPanel>
+                </DockPanel>
+
+                <Border Grid.Row="1"
+                        Margin="0,10,0,0"
+                        Padding="12"
+                        CornerRadius="18"
+                        Background="#330B1116"
+                        BorderBrush="#2A3E49"
+                        BorderThickness="1">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <WrapPanel Grid.Column="0" VerticalAlignment="Center">
+                                <RadioButton GroupName="ToolGroup" Content="Select" Style="{StaticResource ToolRadioStyle}" IsChecked="{Binding IsSelectTool, Mode=TwoWay}" />
+                                <RadioButton GroupName="ToolGroup" Content="Lasso" Style="{StaticResource ToolRadioStyle}" IsChecked="{Binding IsLassoTool, Mode=TwoWay}" />
+                                <RadioButton GroupName="ToolGroup" Content="Polygon" Style="{StaticResource ToolRadioStyle}" IsChecked="{Binding IsPolygonTool, Mode=TwoWay}" />
+                                <RadioButton GroupName="ToolGroup" Content="Shapes" Style="{StaticResource ToolRadioStyle}" IsChecked="{Binding IsShapeTool, Mode=TwoWay}" />
+                                <ComboBox Width="150"
+                                          ItemsSource="{Binding ShapePresetOptions}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Value"
+                                          SelectedValue="{Binding SelectedShapePreset, Mode=TwoWay}"
+                                          Visibility="{Binding IsShapeTool, Converter={StaticResource BoolToVisibility}}"
+                                          ToolTip="Pick a built-in preset shape, then click center and drag outward." />
+                                <ComboBox Width="170"
+                                          ItemsSource="{Binding Project.SavedShapes}"
+                                          SelectedItem="{Binding SelectedSavedShape, Mode=TwoWay}"
+                                          DisplayMemberPath="Name"
+                                          Visibility="{Binding IsShapeTool, Converter={StaticResource BoolToVisibility}}"
+                                          ToolTip="Pick your saved custom shape." />
+                                <Button Content="Save Shape"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Command="{Binding SaveSelectedShapeCommand}"
+                                        Visibility="{Binding IsShapeTool, Converter={StaticResource BoolToVisibility}}" />
+                                <Button Content="Use Saved"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Command="{Binding ApplySavedShapeCommand}"
+                                        Visibility="{Binding IsShapeTool, Converter={StaticResource BoolToVisibility}}" />
+                                <Button Content="Remove"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Command="{Binding DeleteSavedShapeCommand}"
+                                        Visibility="{Binding IsShapeTool, Converter={StaticResource BoolToVisibility}}" />
+                                <CheckBox Content="Grow"
+                                          IsChecked="{Binding AllowSavedShapeGrow, Mode=TwoWay}"
+                                          Foreground="#EAF2F5"
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,8,0"
+                                          Visibility="{Binding IsShapeTool, Converter={StaticResource BoolToVisibility}}" />
+                                <Slider Width="96"
+                                        Minimum="100"
+                                        Maximum="250"
+                                        TickFrequency="1"
+                                        IsSnapToTickEnabled="False"
+                                        IsEnabled="{Binding AllowSavedShapeGrow}"
+                                        Value="{Binding SavedShapeGrowPercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <Slider.Style>
+                                        <Style TargetType="Slider">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding IsShapeTool}" Value="True" />
+                                                        <Condition Binding="{Binding AllowSavedShapeGrow}" Value="True" />
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Slider.Style>
+                                </Slider>
+                                <TextBlock Text="{Binding SavedShapeGrowLabel}"
+                                           Foreground="#B9D8DF"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center"
+                                           Margin="8,0,12,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding IsShapeTool}" Value="True" />
+                                                        <Condition Binding="{Binding AllowSavedShapeGrow}" Value="True" />
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </WrapPanel>
+
+                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                                <CheckBox Content="Show Cutouts Overlay"
+                                          IsChecked="{Binding ShowCutoutsOverlay}"
+                                          Foreground="#EAF2F5"
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,12,0" />
+                                <CheckBox Content="Show Stats Pill"
+                                          IsChecked="{Binding ShowCanvasHud}"
+                                          Foreground="#EAF2F5"
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,12,0" />
+                                <TextBlock Text="{Binding ZoomText}"
+                                           Foreground="#FFCCB0"
+                                           FontSize="15"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,12,0" />
+                                <Button Content="Fit" Style="{StaticResource ActionButtonStyle}" Click="FitView_Click" />
+                                <Button Content="1:1" Style="{StaticResource ActionButtonStyle}" Click="ZoomActual_Click" />
+                                <Button Content="{Binding PreviewFocusButtonLabel}"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Click="TogglePreviewFocus_Click"
+                                        Margin="0"
+                                        ToolTip="Hide or restore the side panes so the preview gets more space." />
+                            </WrapPanel>
+                        </Grid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="LeftPaneColumn" Width="228" />
+                <ColumnDefinition x:Name="LeftSplitterColumn" Width="8" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition x:Name="RightSplitterColumn" Width="8" />
+                <ColumnDefinition x:Name="RightPaneColumn" Width="258" />
+            </Grid.ColumnDefinitions>
+
+            <Border x:Name="LeftPaneCard" Grid.Column="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,8,0" Padding="10" MinWidth="210">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top">
+                        <TextBlock Text="{Binding Project.Cutouts.Count, StringFormat=Cutouts ({0})}"
+                                   Foreground="{StaticResource TextBrush}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Margin="0,4,0,0"
+                                   Foreground="{StaticResource MutedBrush}"
+                                   Text="Committed cutouts stay in export order." />
+                        <Grid Margin="0,10,0,12">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Row="0" Grid.Column="0"
+                                    Grid.ColumnSpan="2"
+                                    Content="Commit Cutout"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Click="CommitSelection_Click"
+                                    IsEnabled="{Binding CanCommitOrFinalizeSelection}"
+                                    Margin="0,0,0,8" />
+
+                            <Button Grid.Row="1" Grid.Column="0"
+                                    Content="Delete"
+                                    Style="{StaticResource ActionButtonStyle}"
+                                    Click="DeleteSelected_Click"
+                                    Margin="0,0,8,8" />
+                            <Button Grid.Row="1" Grid.Column="1"
+                                    Content="View Gallery"
+                                    Style="{StaticResource ActionButtonStyle}"
+                                    Click="OpenGallery_Click"
+                                    Margin="0,0,0,8" />
+
+                            <Button Grid.Row="2" Grid.Column="0"
+                                    Content="Duplicate"
+                                    Style="{StaticResource ActionButtonStyle}"
+                                    Command="{Binding DuplicateSelectedCutoutCommand}"
+                                    Margin="0,0,8,8" />
+                            <Button Grid.Row="2" Grid.Column="1"
+                                    Content="Paste Shape"
+                                    Style="{StaticResource ActionButtonStyle}"
+                                    Command="{Binding PasteSelectedShapeCommand}"
+                                    Margin="0,0,0,8" />
+
+                            <Button Grid.Row="3" Grid.Column="0"
+                                    Content="Move Up"
+                                    Style="{StaticResource ActionButtonStyle}"
+                                    Command="{Binding MoveUpCommand}"
+                                    Margin="0,0,8,0" />
+                            <Button Grid.Row="3" Grid.Column="1"
+                                    Content="Move Down"
+                                    Style="{StaticResource ActionButtonStyle}"
+                                    Command="{Binding MoveDownCommand}"
+                                    Margin="0" />
+                        </Grid>
+                    </StackPanel>
+
+                    <ListBox x:Name="CutoutsList"
+                             ItemsSource="{Binding Project.Cutouts}"
+                             SelectionMode="Extended"
+                             SelectionChanged="Cutouts_SelectionChanged"
+                             ScrollViewer.VerticalScrollBarVisibility="Visible"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="60" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <CheckBox Grid.Column="0"
+                                              IsChecked="{Binding IsVisible}"
+                                              VerticalAlignment="Center"
+                                              Margin="0,0,8,0" />
+
+                                    <Border Grid.Column="1"
+                                            Width="52"
+                                            Height="52"
+                                            Margin="0,0,8,0"
+                                            CornerRadius="10"
+                                            Background="#0E171D"
+                                            BorderBrush="#28404A"
+                                            BorderThickness="1"
+                                            VerticalAlignment="Center">
+                                        <Image Source="{Binding PreviewImage}"
+                                               Stretch="Uniform"
+                                               Margin="5" />
+                                    </Border>
+
+                                    <StackPanel Grid.Column="2"
+                                                VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}"
+                                                   Foreground="{StaticResource TextBrush}"
+                                                   FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   TextWrapping="Wrap" />
+                                        <TextBlock Margin="0,4,0,0"
+                                                   Text="{Binding SizeLabel}"
+                                                   Foreground="{StaticResource MutedBrush}" />
+                                        <TextBlock Margin="0,3,0,0"
+                                                   Text="{Binding ConfidenceLabel}"
+                                                   Foreground="#B9D8DF"
+                                                   FontSize="11" />
+                                    </StackPanel>
+
+                                    <Border Grid.Column="3"
+                                            Background="#243840"
+                                            CornerRadius="10"
+                                            Padding="7,3"
+                                            VerticalAlignment="Center"
+                                            Margin="10,0,0,0">
+                                        <TextBlock Text="{Binding Geometry.Mode}"
+                                                   Foreground="#B9D8DF"
+                                                   FontSize="11"
+                                                   TextOptions.TextFormattingMode="Display" />
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <GridSplitter x:Name="LeftPaneSplitter" Grid.Column="1" Style="{StaticResource PaneSplitterStyle}" DragCompleted="PaneSplitter_DragCompleted" />
+
+            <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Margin="0" Padding="4">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="10,6,10,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding PreviewPrimaryStats}"
+                                   Foreground="#DCE8EC"
+                                   FontSize="12"
+                                   TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding PreviewSecondaryStats}"
+                                   Foreground="#9DB2BA"
+                                   FontSize="12"
+                                   TextAlignment="Right"
+                                   TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center"
+                                   Margin="16,0,0,0" />
+                    </Grid>
+
+                    <views:SkiaCanvasView Grid.Row="1" x:Name="CanvasHost" />
+                </Grid>
+            </Border>
+
+            <GridSplitter x:Name="RightPaneSplitter" Grid.Column="3" Style="{StaticResource PaneSplitterStyle}" DragCompleted="PaneSplitter_DragCompleted" />
+
+            <Border x:Name="RightPaneCard" Grid.Column="4" Style="{StaticResource CardBorderStyle}" Margin="8,0,0,0" Padding="12" MinWidth="236">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,8,0">
+                    <StackPanel>
+                        <TextBlock Text="Inspector"
+                                   Foreground="{StaticResource TextBrush}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Margin="0,4,0,0"
+                                   Foreground="{StaticResource MutedBrush}"
+                                   Text="Tune the active selection and selected cutout." />
+
+                        <Border Margin="0,12,0,0"
+                                Padding="12"
+                                CornerRadius="14"
+                                Background="{StaticResource PanelBrushAlt}"
+                                BorderBrush="{StaticResource PanelBorderBrush}"
+                                BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Source"
+                                           Foreground="{StaticResource AccentBrushAlt}"
+                                           FontSize="14"
+                                           FontWeight="SemiBold" />
+                                <TextBlock Margin="0,10,0,0"
+                                           Foreground="{StaticResource TextBrush}"
+                                           FontSize="15"
+                                           Text="{Binding SourceImageLabel}" />
+                                <TextBlock Margin="0,8,0,0"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           TextWrapping="Wrap"
+                                           Text="{Binding SourceImagePathLabel}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Margin="0,12,0,0"
+                                Padding="12"
+                                CornerRadius="14"
+                                Background="{StaticResource PanelBrushAlt}"
+                                BorderBrush="{StaticResource PanelBorderBrush}"
+                                BorderThickness="1"
+                                Visibility="{Binding HasActiveSelection, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel>
+                                <TextBlock Text="Active Selection"
+                                           Foreground="{StaticResource AccentBrush}"
+                                           FontSize="14"
+                                           FontWeight="SemiBold" />
+                                <TextBlock Margin="0,10,0,0"
+                                           Foreground="{StaticResource TextBrush}"
+                                           Text="{Binding ActiveSelection.BoundsLabel}" />
+                                <TextBlock Margin="0,6,0,0"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           Text="{Binding ActiveSelection.SizeLabel}" />
+                                <TextBlock Margin="0,6,0,0"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           Text="{Binding ActiveSelectionPointCount, StringFormat=Points: {0}}" />
+                                <TextBlock Margin="0,6,0,0"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           Text="{Binding ActiveSelectionMode, StringFormat=Mode: {0}}" />
+                                <WrapPanel Margin="0,12,0,0">
+                                    <Button Content="Commit Now" Style="{StaticResource AccentButtonStyle}" Click="CommitSelection_Click" IsEnabled="{Binding CanCommitOrFinalizeSelection}" />
+                                    <Button Content="Clear" Style="{StaticResource ActionButtonStyle}" Command="{Binding ClearSelectionCommand}" Margin="0" />
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Margin="0,10,0,0"
+                                Padding="12"
+                                CornerRadius="14"
+                                Background="{StaticResource PanelBrushAlt}"
+                                BorderBrush="{StaticResource PanelBorderBrush}"
+                                BorderThickness="1"
+                                Visibility="{Binding HasSelectedCutout, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel>
+                                <TextBlock Text="Selected Cutout"
+                                           Foreground="{StaticResource AccentBrushAlt}"
+                                           FontSize="14"
+                                           FontWeight="SemiBold" />
+                                <TextBlock Margin="0,8,0,0"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           Text="Name" />
+                                <TextBox Margin="0,6,0,0"
+                                         Text="{Binding PrimarySelectedCutout.Name, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Margin="0,8,0,0"
+                                           Foreground="{StaticResource TextBrush}"
+                                           Text="{Binding SelectedCutoutBounds}" />
+                                <TextBlock Margin="0,4,0,0"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           Text="{Binding SelectedCutoutSize}" />
+                                <TextBlock Margin="0,4,0,0"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           Text="{Binding SelectedCutoutMode, StringFormat=Mode: {0}}" />
+                                <TextBlock Margin="0,4,0,0"
+                                           Foreground="#B9D8DF"
+                                           Text="{Binding SelectedCutoutConfidence, StringFormat=Quality: {0}}" />
+
+                                <CheckBox Margin="0,10,0,0"
+                                          Content="Split preview"
+                                          IsChecked="{Binding SplitPreviewEnabled}"
+                                          Foreground="#EAF2F5" />
+                                <Slider Margin="0,6,0,0"
+                                        Minimum="0.05"
+                                        Maximum="0.95"
+                                        TickFrequency="0.01"
+                                        IsSnapToTickEnabled="False"
+                                        Value="{Binding SplitPreviewRatio, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        IsEnabled="{Binding SplitPreviewEnabled}" />
+
+                                <Border Margin="0,10,0,0"
+                                        Height="150"
+                                        CornerRadius="12"
+                                        Background="#0E171D"
+                                        BorderBrush="#28404A"
+                                        BorderThickness="1"
+                                        Visibility="{Binding HasSelectedCutoutPreview, Converter={StaticResource BoolToVisibility}}">
+                                    <Grid>
+                                        <Image Source="{Binding SelectedCutoutPreviewImage}" Stretch="Uniform" Margin="6" />
+                                        <Border Background="#8E0B1116"
+                                                CornerRadius="8"
+                                                Padding="8,3"
+                                                Margin="8"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top">
+                                            <TextBlock Text="{Binding SelectedCutoutPreviewCaption}"
+                                                       Foreground="#EAF2F5"
+                                                       FontSize="11" />
+                                        </Border>
+                                    </Grid>
+                                </Border>
+
+                                <TextBlock Margin="0,9,0,0"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           Text="Arrow keys nudge by 1px. Hold Shift to nudge by 10px." />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Margin="0,10,0,0"
+                                Padding="12"
+                                CornerRadius="14"
+                                Background="{StaticResource PanelBrushAlt}"
+                                BorderBrush="{StaticResource PanelBorderBrush}"
+                                BorderThickness="1"
+                                Visibility="{Binding HasBrushTarget, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel>
+                                <TextBlock Text="Refine"
+                                           Foreground="{StaticResource AccentBrush}"
+                                           FontSize="14"
+                                           FontWeight="SemiBold" />
+                                <TextBlock Margin="0,8,0,0"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           Text="Brush + adds shape back. Brush - trims spill. Works on the selected cutout or the active selection." />
+                                <TextBlock Margin="0,8,0,0"
+                                           Foreground="#B9D8DF"
+                                           FontSize="12"
+                                           Text="{Binding BrushTargetLabel}" />
+                                <WrapPanel Margin="0,10,0,0">
+                                    <RadioButton GroupName="ToolGroup" Content="Brush +" Style="{StaticResource ToolRadioStyle}" IsChecked="{Binding IsBrushAddTool, Mode=TwoWay}" />
+                                    <RadioButton GroupName="ToolGroup" Content="Brush -" Style="{StaticResource ToolRadioStyle}" IsChecked="{Binding IsBrushEraseTool, Mode=TwoWay}" />
+                                    <TextBlock Text="{Binding RefineBrushSizeLabel}"
+                                               Foreground="#B9D8DF"
+                                               FontWeight="SemiBold"
+                                               VerticalAlignment="Center"
+                                               Margin="4,0,0,0" />
+                                </WrapPanel>
+                                <Slider Margin="0,8,0,0"
+                                        Minimum="6"
+                                        Maximum="140"
+                                        TickFrequency="1"
+                                        IsSnapToTickEnabled="False"
+                                        Value="{Binding RefineBrushSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" Style="{StaticResource CardBorderStyle}" Margin="0,8,0,0" Padding="10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <WrapPanel Grid.Row="0" VerticalAlignment="Center">
+                    <TextBlock Text="Base Export Folder"
+                               Foreground="{StaticResource MutedBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,10" />
+                    <TextBox Width="220"
+                             Margin="0,0,12,10"
+                             Text="{Binding ExportFolder, UpdateSourceTrigger=PropertyChanged}" />
+                    <Button Content="Browse"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="PickExportFolder_Click"
+                            Margin="0,0,14,10" />
+                    <TextBlock Text="Preset"
+                               Foreground="{StaticResource MutedBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,10" />
+                    <ComboBox Width="128"
+                              Margin="0,0,12,10"
+                              SelectedValue="{Binding ExportPreset}"
+                              SelectedValuePath="Tag">
+                        <ComboBoxItem Content="Custom" Tag="custom" />
+                        <ComboBoxItem Content="Icons" Tag="icons" />
+                        <ComboBoxItem Content="Sprites" Tag="sprites" />
+                        <ComboBoxItem Content="UI Assets" Tag="uiAssets" />
+                    </ComboBox>
+                    <TextBlock Text="Size"
+                               Foreground="{StaticResource MutedBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,10" />
+                    <ComboBox Width="98"
+                              Margin="0,0,12,10"
+                              SelectedValue="{Binding ExportScaleChoice}"
+                              SelectedValuePath="Tag">
+                        <ComboBoxItem Content="16 px" Tag="16px" />
+                        <ComboBoxItem Content="20 px" Tag="20px" />
+                        <ComboBoxItem Content="24 px" Tag="24px" />
+                        <ComboBoxItem Content="32 px" Tag="32px" />
+                        <ComboBoxItem Content="40 px" Tag="40px" />
+                        <ComboBoxItem Content="48 px" Tag="48px" />
+                        <ComboBoxItem Content="64 px" Tag="64px" />
+                        <ComboBoxItem Content="96 px" Tag="96px" />
+                        <ComboBoxItem Content="128 px" Tag="128px" />
+                        <ComboBoxItem Content="256 px" Tag="256px" />
+                    </ComboBox>
+                    <TextBlock Text="Edge"
+                               Foreground="{StaticResource MutedBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,10" />
+                    <ComboBox Width="96"
+                              Margin="0,0,12,10"
+                              SelectedValue="{Binding ExportOutlineMode}"
+                              SelectedValuePath="Tag">
+                        <ComboBoxItem Content="None" Tag="none" />
+                        <ComboBoxItem Content="White" Tag="white" />
+                        <ComboBoxItem Content="Black" Tag="black" />
+                    </ComboBox>
+                    <TextBlock Text="Naming"
+                               Foreground="{StaticResource MutedBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,10" />
+                    <ComboBox Width="150"
+                              Margin="0,0,12,10"
+                              SelectedValue="{Binding ExportNamingMode}"
+                              SelectedValuePath="Tag">
+                        <ComboBoxItem Content="Auto Numbered" Tag="autoNumbered" />
+                        <ComboBoxItem Content="Use Cutout Names" Tag="cutoutNames" />
+                    </ComboBox>
+                    <TextBlock Text="Prefix"
+                               Foreground="{StaticResource MutedBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,10" />
+                    <TextBox Width="118"
+                             Margin="0,0,12,10"
+                             Text="{Binding ExportPrefix, UpdateSourceTrigger=PropertyChanged}" />
+                    <Button Content="Export Selected"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Command="{Binding ExportSelectedCommand}"
+                            Margin="0,0,8,10" />
+                    <Button Content="Export All"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Command="{Binding ExportAllCommand}"
+                            Margin="0,0,0,10" />
+                </WrapPanel>
+
+                <Grid Grid.Row="1" Margin="0,2,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="{Binding CutOutsFolderHint}"
+                               Foreground="{StaticResource MutedBrush}"
+                               TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1"
+                               Margin="16,0,0,0"
+                               MaxWidth="520"
+                               Text="{Binding StatusText}"
+                               Foreground="{StaticResource TextBrush}"
+                               FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center" />
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,214 @@
+05 — Project Save/Load + JSON + Settings Storage (LOCKED)
+Image UI Slicer • v0.1 • WPF + SkiaSharp • Visual Studio 2026
+
+LOCKED INPUTS USED
+- Storage location: A → AppData (recommended) is LOCKED for settings + default project location behavior.
+
+============================================================
+0) Goal of this section
+============================================================
+Lock how projects are saved/loaded and where settings live:
+- Project file format and schema (JSON)
+- Save/Open UX flows
+- Missing image relink flow
+- Settings storage in AppData
+- Recent files list behavior
+- Default export folder persistence
+
+============================================================
+1) Storage Locations (LOCKED)
+============================================================
+A) App Settings location (LOCKED)
+Windows standard per-user location:
+- %APPDATA%\ImageUiSlicer\
+  - settings.json
+  - recent.json (optional)
+  - cache\ (thumbnails; optional)
+
+B) Project files
+Projects can be saved anywhere the user chooses, but defaults are:
+- Default “Save As” starting folder:
+  - %USERPROFILE%\Documents\ImageUiSlicer Projects\
+(We create this folder if missing.)
+
+C) Export folder default
+- Default export folder persists in settings.json
+- User can override per project (saved inside project file)
+
+============================================================
+2) Project File Type (LOCKED)
+============================================================
+- Extension: .iusproj (Image UI Slicer Project)
+- Format: JSON (UTF-8)
+- Human readable, versioned
+
+============================================================
+3) Project JSON Schema (LOCKED v0.1)
+============================================================
+Top-level:
+{
+  "version": "0.1",
+  "projectName": "My Project",
+  "createdUtc": "2026-03-03T00:00:00Z",
+  "modifiedUtc": "2026-03-03T00:00:00Z",
+
+  "sourceImage": {
+    "path": "C:\\path\\to\\image.png",
+    "pixelWidth": 1920,
+    "pixelHeight": 1080,
+    "fingerprint": null
+  },
+
+  "defaults": {
+    "exportFolder": "C:\\exports",
+    "format": "png",
+    "scale": 1,
+    "padding": 0
+  },
+
+  "ui": {
+    "showCutoutsOverlay": true,
+    "zoom": 1.0,
+    "panX": 0.0,
+    "panY": 0.0
+  },
+
+  "cutouts": [
+    {
+      "id": "c1",
+      "name": "button_primary",
+      "isVisible": true,
+      "geometry": {
+        "type": "path",
+        "mode": "freehand",
+        "closed": true,
+        "points": [ { "x": 120.5, "y": 88.0 } ]
+      },
+      "bbox": { "x": 110, "y": 70, "w": 260, "h": 120 },
+      "export": { "format": "png", "scale": 1, "padding": 0 },
+      "notes": ""
+    }
+  ]
+}
+
+Notes (locked decisions):
+- Cutouts geometry points are stored in IMAGE pixel coordinates.
+- Active Selection is NOT saved to disk in v0.1 (keeps project clean).
+  (We can add "draftSelection" later if desired.)
+- bbox is stored as cached data; on load, we can recompute and validate.
+
+============================================================
+4) Settings File (AppData) (LOCKED v0.1)
+============================================================
+File:
+- %APPDATA%\ImageUiSlicer\settings.json
+
+Schema:
+{
+  "version": "0.1",
+  "lastOpenFolder": "C:\\Users\\...\\Documents\\ImageUiSlicer Projects",
+  "lastImageFolder": "C:\\Users\\...\\Pictures",
+  "defaultExportFolder": "C:\\Exports",
+  "showCutoutsOverlay": true,
+  "theme": "system",
+  "window": {
+    "width": 1400,
+    "height": 900,
+    "x": 50,
+    "y": 50,
+    "isMaximized": false
+  }
+}
+
+============================================================
+5) Recent Files (AppData) (LOCKED v0.1)
+============================================================
+File:
+- %APPDATA%\ImageUiSlicer\recent.json
+
+Schema:
+{
+  "version": "0.1",
+  "items": [
+    {
+      "path": "C:\\...\\project.iusproj",
+      "lastOpenedUtc": "2026-03-03T00:00:00Z"
+    }
+  ]
+}
+
+Rules:
+- Keep max 15 items
+- If missing on disk, remove automatically
+- Display in File menu and optional Home screen (later)
+
+============================================================
+6) Save / Load UX Flows (LOCKED)
+============================================================
+A) New Project
+- User chooses image file
+- App creates in-memory project:
+  - projectName = image filename (without extension) by default
+  - defaults.exportFolder = settings.defaultExportFolder (if set)
+- User must Save As to create a .iusproj file
+
+B) Save
+- If project has a file path:
+  - write JSON
+  - update modifiedUtc
+- If no file path:
+  - redirect to Save As
+
+C) Save As
+- Default folder: Documents\ImageUiSlicer Projects
+- Suggested filename: <projectName>.iusproj
+
+D) Open Project
+- OpenFileDialog filters *.iusproj
+- After loading JSON:
+  - validate version
+  - attempt to load sourceImage.path
+
+E) Missing Image Relink (LOCKED)
+If sourceImage.path is missing:
+- Show dialog:
+  - “Source image not found. Locate it to continue.”
+- Buttons:
+  - Locate Image… (file picker)
+  - Cancel Open (returns to previous state)
+Rules:
+- If user locates a new file:
+  - update sourceImage.path
+  - update pixelWidth/pixelHeight from loaded image
+  - keep cutout geometry as-is
+  - If dimensions changed, show warning:
+    - “Image dimensions differ; cutouts may not align.”
+  - Save will persist the new path.
+
+============================================================
+7) Versioning + Compatibility (v0.1)
+============================================================
+- If project.version > app-supported version:
+  - show “This project was created with a newer version.”
+  - open in read-only mode (optional v1.1) OR block open (v1)
+Recommended v1: block open with clear message.
+
+- If project.version < supported:
+  - run migration steps if needed (v1.1+)
+
+============================================================
+8) Autosave / Recovery (not locked)
+============================================================
+Not in v0.1 baseline.
+Optional v1.1:
+- periodic autosave to AppData\recovery\
+
+============================================================
+9) Next Spec File to generate
+============================================================
+06_Visual_Studio_Solution_Scaffold.txt
+Locks:
+- Exact .NET target framework
+- NuGet packages (SkiaSharp)
+- MainWindow composition (UserControls)
+- Initial placeholder implementation plan for each file

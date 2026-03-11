@@ -1,0 +1,94 @@
+07 — Export Folder Structure (LOCKED: “cut outs” subfolder)
+Image UI Slicer • v0.1 • WPF + SkiaSharp • Visual Studio 2026
+
+LOCKED INPUTS USED
+- Export outputs create/use a sibling subfolder named exactly: "cut outs"
+
+============================================================
+0) Goal of this section
+============================================================
+Lock export destination rules so exports are consistent for:
+- Export Selected
+- Export All
+
+Requirement:
+- When exporting, the app must create (if missing) and use a folder named “cut outs”
+  inside the chosen export folder. All exports go into that subfolder.
+
+============================================================
+1) Export Folder Selection (Base Folder)
+============================================================
+User selects an Export Folder in the bottom bar (the “Base Export Folder”).
+
+Definitions:
+- Base Export Folder = user-chosen folder path
+- Cut Outs Export Folder = Base Export Folder\cut outs\
+
+Rules (LOCKED):
+- Export Selected and Export All ALWAYS write files to Cut Outs Export Folder.
+- If Base Export Folder is not set, prompt user to pick it.
+- If Cut Outs Export Folder does not exist, create it automatically.
+- If creation fails (permissions), show error and abort export.
+
+============================================================
+2) Single vs Bulk Export (LOCKED)
+============================================================
+A) Export Selected
+- Exports only the currently selected cutout
+- Output folder: BaseExportFolder\cut outs\
+
+B) Export All
+- Exports all cutouts in list order
+- Output folder: BaseExportFolder\cut outs\
+
+No other folders are created in v0.1 (tags/subfolders reserved for later).
+
+============================================================
+3) Naming + Output Paths (v0.1)
+============================================================
+For each cutout:
+- output path = BaseExportFolder\cut outs\<filename>.png
+
+Filename rules:
+- Use cutout name
+- Sanitize for filesystem:
+  - Trim whitespace
+  - Replace spaces with underscores in filenames ONLY (folder name stays "cut outs")
+  - Remove invalid filename characters: \ / : * ? " < > |
+  - Collapse repeated underscores
+- Handle collisions within the export folder:
+  - <name>.png
+  - <name>_01.png
+  - <name>_02.png
+  - etc.
+
+Examples:
+- Cutout name: "Primary Button"
+  - Exports to: ...\cut outs\Primary_Button.png
+
+============================================================
+4) Safety Rules (v0.1)
+============================================================
+- Never overwrite existing files silently:
+  - If a collision occurs, auto-suffix as above.
+- If a cutout name becomes empty after sanitization:
+  - fallback name: "cutout"
+  - then apply suffixing if needed.
+
+============================================================
+5) UI Text (v0.1)
+============================================================
+In the bottom bar:
+- Show Base Export Folder path (user chosen)
+- Show small hint text (optional):
+  - “Exports are saved to: <base>\cut outs\”
+
+============================================================
+6) Next Spec File to generate
+============================================================
+06_Visual_Studio_Solution_Scaffold.txt
+(or if already started)
+08_Export_Implementation_Details_SkiaSharp.txt
+- exact Skia clipping steps
+- encoder settings
+- thumbnail generation

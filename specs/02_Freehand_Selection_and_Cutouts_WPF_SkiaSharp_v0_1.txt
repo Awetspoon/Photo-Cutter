@@ -1,0 +1,296 @@
+02 — Freehand Selection + Cutouts (Photoshop-ish) Spec
+Image UI Slicer • v0.1 • WPF + SkiaSharp • Visual Studio 2026
+
+============================================================
+0) Goal of this section
+============================================================
+Define exactly how “freehand cutouts” work:
+- User draws a freehand selection (lasso) on the image.
+- The selection is previewed BEFORE committing.
+- User can create multiple selections/cutouts and see how many they have.
+- User exports committed cutouts as PNGs with transparency.
+
+This section locks:
+- Tools
+- States (Selection vs Cutout)
+- UI panels
+- Mouse/keyboard behavior
+- Data representation (what we store in the project JSON for freehand shapes)
+- Export behavior
+
+============================================================
+1) Key Concepts (Terminology)
+============================================================
+A) Canvas
+- The main preview area where the source image is rendered.
+
+B) Selection (temporary)
+- A “work-in-progress” mask drawn by the user.
+- Can be edited / adjusted.
+- Not exported until committed.
+- There can be:
+  - One “Active Selection” at a time (simpler v1),
+  - OR multiple “Pending Selections” (optional).
+Recommended v1: ONE Active Selection (fast + clear), then commit it into Cutouts.
+
+C) Cutout (committed)
+- A saved mask + crop bounds derived from the selection.
+- Listed in the Cutouts panel, can be toggled visible, renamed, exported.
+- Multiple cutouts can exist per project.
+
+D) Mask
+- A shape/path that defines which pixels remain visible.
+- Everything outside the mask becomes transparent when exporting PNG.
+
+============================================================
+2) Recommended v1 Behavior (simple + powerful)
+============================================================
+- The user works with ONE Active Selection.
+- When ready, user clicks “Commit Selection → Cutout”.
+- This creates a new Cutout item and clears the Active Selection.
+- Repeat until the user has as many cutouts as they want.
+- The Cutouts list shows how many cutouts exist and previews each.
+
+Why this is best for v1:
+- Matches your “show before selecting” requirement (active selection preview).
+- Still allows “how many cutouts I want” (create many committed cutouts).
+- Keeps UI and code manageable for the first build.
+
+============================================================
+3) Tools (Canvas toolbar)
+============================================================
+Tools (v1):
+1) Select/Move Tool
+   - Select a Cutout in the canvas (click its outline) OR via list
+   - Move cutout (moves its mask coordinates) (optional v1.1)
+   - For v1, we can keep cutouts “fixed” and not allow moving after commit.
+   Recommended v1: allow select/highlight only; no moving to reduce complexity.
+
+2) Lasso (Freehand)
+   - Click+drag to draw a freehand path.
+   - On mouse-up: closes the path automatically (connect end to start).
+   - Creates/updates the Active Selection.
+
+3) Polygon Lasso
+   - Click to place points.
+   - Hover shows preview edge to next point.
+   - Double-click or Enter closes shape.
+
+Selection modify modes (v1):
+- Replace (default): new selection replaces active.
+- Add: adds area to active selection.
+- Subtract: subtracts area from active selection.
+UI control:
+- 3 toggle buttons: Replace / Add / Subtract (only one active)
+
+View controls:
+- Pan (Space + drag) (works in any tool)
+- Zoom (mouse wheel)
+- Fit / 100%
+
+Optional tools (v1.1+):
+- Brush select + Eraser
+- Feather / Smooth / Expand-Shrink
+
+============================================================
+4) UI Layout (Updated)
+============================================================
+Single Main Window with 3 columns + bottom bar.
+
+LEFT: Cutouts Panel
+- Header: “Cutouts (N)”
+- Buttons row:
+  - Commit Selection → Cutout (enabled only if Active Selection exists)
+  - Delete Cutout (enabled if a cutout is selected)
+  - Duplicate Cutout (v1.1 optional)
+- Cutouts list:
+  - Each row: checkbox (visible), thumbnail, name, size (WxH)
+  - Selecting a row highlights cutout outline on canvas
+
+CENTER: Canvas
+- Displays source image
+- Overlays:
+  - Active Selection overlay (tinted fill + outline)
+  - Cutout outlines (thin lines) for committed cutouts
+  - Selected cutout outline (thicker line)
+- Top toolbar:
+  - Select | Lasso | Poly Lasso
+  - Replace | Add | Subtract
+  - Fit | 100% | Zoom slider (optional)
+  - Overlay toggle (show/hide cutouts)
+- Status bar (bottom of window is fine too):
+  - Zoom %, cursor X/Y, selection exists yes/no
+
+RIGHT: Inspector
+- If Active Selection exists:
+  - Section title: “Active Selection”
+  - Read-only:
+    - Bounding box: X,Y,W,H
+    - Estimated pixel size: W×H
+  - Buttons:
+    - Clear Selection
+- If a Cutout is selected:
+  - Name (editable)
+  - Export format (v1 = PNG only, locked)
+  - Export scale: 1x / 2x / custom (custom optional)
+  - Bounding box read-only
+  - Notes (optional)
+
+BOTTOM: Export Bar
+- Export Selected Cutout
+- Export All Cutouts
+- Export Folder (picker + display)
+- Status text (“Exported 12 cutouts to …”)
+
+============================================================
+5) Visual Preview Requirements (your key request)
+============================================================
+A) Active Selection Preview
+- While drawing, user sees:
+  - The in-progress path line
+  - A translucent fill for the “inside” area (once closed)
+- After completing, user sees:
+  - Outline + tinted interior
+  - Small preview thumbnail (right panel) of the cutout result:
+    - Show transparency checkerboard behind it
+    - Crop to bounding box
+
+B) “How many cutouts do I want”
+- The Cutouts list always shows:
+  - Cutouts (N)
+  - Thumbnails
+- User can create as many cutouts as desired by repeating commit.
+
+C) Cutout Overlays
+- All committed cutouts are optionally visible as outlines.
+- Toggle: “Show Cutouts Overlay”
+- Selected cutout is highlighted.
+
+============================================================
+6) Mouse + Keyboard Behavior (locked for v1)
+============================================================
+General:
+- Mouse wheel: zoom at cursor
+- Space + left-drag: pan
+- Ctrl+0: fit
+- Ctrl+1: 100%
+- Ctrl+S: save project
+- Ctrl+O: open project
+- Ctrl+N: new project
+
+Selection:
+- Esc: cancel polygon lasso in progress OR clear active selection (if no in-progress)
+- Enter: close polygon lasso
+- Backspace (poly lasso): remove last point
+- Delete:
+  - If cutout selected: delete cutout (confirm)
+  - Else if active selection exists: clear selection
+
+Undo/Redo (v1 basic):
+- Ctrl+Z: undo last selection/cutout operation
+- Ctrl+Y: redo
+
+============================================================
+7) Data Representation (Project JSON additions)
+============================================================
+We need to store mask geometry.
+
+Recommended representation:
+- Store each cutout as a Path with points in IMAGE coordinates (not screen coordinates)
+- Each cutout has:
+  - id
+  - name
+  - points (list of x,y)
+  - mode: “freehand” or “polygon”
+  - boundingBox: x,y,w,h (cached for fast UI)
+  - optional: holes / multiple contours (v2)
+
+Example:
+{
+  "id": "c1",
+  "name": "button_glow",
+  "shape": {
+    "type": "path",
+    "mode": "freehand",
+    "points": [
+      {"x": 120.5, "y": 88.0},
+      {"x": 121.0, "y": 89.2}
+    ],
+    "closed": true
+  },
+  "bbox": {"x": 110, "y": 70, "w": 260, "h": 120},
+  "export": {"format": "png", "scale": 1, "padding": 0}
+}
+
+Active selection is NOT saved unless we choose to.
+Recommended v1: do not save active selection in project file (keep simple).
+Optional v1.1: save it as “draftSelection”.
+
+============================================================
+8) Export Implementation Rules (SkiaSharp)
+============================================================
+Export output must match Photoshop-like cutout:
+- Input: original image (bitmap)
+- For each cutout:
+  1) Compute bounding box (bbox) of the path points
+  2) Create new transparent bitmap sized bbox (plus padding)
+  3) Translate canvas so bbox origin maps to (0,0)
+  4) Clip to path (mask)
+  5) Draw the original image into the clipped area
+  6) Save as PNG
+
+Naming:
+- Use cutout name
+- sanitize + collision suffix
+
+Transparency:
+- Always PNG with alpha in v1
+
+============================================================
+9) Performance + Quality (v1)
+============================================================
+- Canvas should feel smooth:
+  - Use SkiaSharp for rendering image + overlays
+  - Keep points count reasonable:
+    - For freehand, we can simplify points after draw (light smoothing)
+    - Option: sample points every N pixels while dragging
+
+- High DPI:
+  - Store coordinates in image pixels
+  - Render transform handles mapping image->screen
+
+============================================================
+10) “Auto Cut” (future) placeholder
+============================================================
+Not in v1, but leave a slot:
+- Button: “Auto Detect Elements (Beta)” (disabled / hidden v1)
+- Future module will propose cutouts:
+  - shows suggestions as dashed outlines
+  - user accepts/rejects
+
+============================================================
+11) Acceptance Criteria (v1)
+============================================================
+A) Must Have
+- Load image
+- Draw lasso selection (freehand)
+- See tinted preview overlay
+- Commit selection into cutout list (N count updates)
+- Select cutout from list and see outline on canvas
+- Export selected/all as PNG with transparency
+
+B) Nice to have (if time)
+- Polygon lasso
+- Replace/Add/Subtract
+- Undo/Redo for selection/commit/delete
+
+============================================================
+12) Next Spec File (what we do next)
+============================================================
+Next downloadable file to generate:
+- 03_Data_Model_and_MVVM_Classes.txt
+  - ViewModels
+  - Services (ProjectService, ExportService, ImageService)
+  - Skia canvas control integration layer
+  - Commands and state machine
+

@@ -1,0 +1,18 @@
+﻿global using System;
+global using System.Collections.Generic;
+global using System.IO;
+global using System.Linq;
+global using Application = System.Windows.Application;
+global using DataFormats = System.Windows.DataFormats;
+global using DragEventArgs = System.Windows.DragEventArgs;
+global using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+global using MessageBox = System.Windows.MessageBox;
+global using MouseButtonEventArgs = System.Windows.Input.MouseButtonEventArgs;
+global using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+global using MouseWheelEventArgs = System.Windows.Input.MouseWheelEventArgs;
+global using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+global using Point = System.Windows.Point;
+global using PointF = ImageUiSlicer.Models.PointF;
+global using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
+global using TextBox = System.Windows.Controls.TextBox;
+global using UserControl = System.Windows.Controls.UserControl;

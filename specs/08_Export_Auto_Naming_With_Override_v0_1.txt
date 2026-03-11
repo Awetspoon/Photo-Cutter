@@ -1,0 +1,6 @@
+08 — Export Auto-Naming + Optional Override (LOCKED)
+- Default: numbered 001,002,003… in cutouts list order
+- Override at export time: Use Cutout Names
+- No silent overwrites; suffix _01, _02…
+
+Export folder: BaseExportFolder\cut outs\

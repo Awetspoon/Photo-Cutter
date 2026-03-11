@@ -1,0 +1,251 @@
+04 — Commands, Tools, and Shortcuts (Locked Interaction Spec)
+Image UI Slicer • v0.1 • WPF + SkiaSharp • Visual Studio 2026
+
+LOCKED INPUTS USED
+- Commit behavior: 1A → Commit Selection clears Active Selection after creating Cutout.
+- Polygon lasso: YES → Included in v1 toolbar and functional.
+
+============================================================
+0) Goal of this section
+============================================================
+Lock the exact user interactions:
+- Which tools exist in v1
+- What each toolbar button does
+- Mouse + keyboard shortcuts
+- What is previewed, when, and how
+- Confirmed “Photoshop-ish” feel without feature bloat
+
+This section should be sufficient to implement the interaction layer and UI.
+
+============================================================
+1) Toolset (v1) — LOCKED
+============================================================
+A) Select Tool
+Purpose:
+- Select a committed cutout by clicking its outline on canvas or selecting in the list.
+Behavior:
+- Click on a cutout outline → selects it.
+- Clicking empty area → clears cutout selection (does NOT clear active selection).
+- Does not move/transform cutouts in v1 (selection + highlight only).
+  (Moving masks is reserved for v1.1+)
+
+B) Lasso Tool (Freehand)
+Purpose:
+- Draw a freehand closed path to create/replace the Active Selection.
+Behavior:
+- Mouse down + drag → draws a continuous path line.
+- Mouse up → closes the path (connect end → start).
+- If the path has too few points / tiny area → reject with status “Selection too small”.
+
+C) Polygon Lasso Tool — LOCKED IN v1
+Purpose:
+- Draw a closed polygon selection by placing points.
+Behavior:
+- Click to place points.
+- A preview edge is drawn from last point to current cursor position.
+- Close selection:
+  - Double-click, OR press Enter, OR click the first point again (optional)
+- Backspace removes last point.
+- Esc cancels polygon-in-progress (does not delete existing active selection unless none in progress).
+
+============================================================
+2) Selection Modify Mode (v1 decision)
+============================================================
+To keep v1 achievable, we lock:
+- Replace mode ONLY for v1 (default).
+- Add/Subtract are reserved for v1.1+ (buttons may be hidden or disabled).
+Reason:
+- True add/subtract needs path boolean ops (more complexity).
+If you want them visible in v1, we can include the buttons as disabled placeholders labeled “Coming soon”.
+
+LOCK (v1):
+- ModifyMode = Replace only (functional)
+
+============================================================
+3) Canvas View Controls (v1)
+============================================================
+Zoom:
+- Mouse wheel zooms in/out centered on cursor position.
+- Zoom indicator shows %.
+
+Pan:
+- Space + Left mouse drag pans (works in any tool).
+- Optional: Middle mouse drag pans (if you want, we’ll add v1.1).
+
+Fit/Reset:
+- Ctrl+0 or “Fit” button fits image in view.
+- Ctrl+1 or “100%” sets zoom to 100%.
+
+Overlay:
+- Toggle: “Show Cutouts Overlay”
+  - ON: shows outlines for all visible cutouts
+  - OFF: hides outlines (except active selection overlay still shows if it exists)
+
+============================================================
+4) Left Panel (Cutouts) Commands — v1
+============================================================
+UI Elements:
+- Header: “Cutouts (N)”
+- Buttons:
+  1) Commit Selection → Cutout
+  2) Delete Cutout
+- List:
+  - Each item shows: checkbox (visible), thumbnail, name, (optional W×H)
+
+Command behavior:
+A) Commit Selection → Cutout (LOCKED)
+Enabled when:
+- Active Selection exists and is valid
+Action:
+- Creates a new Cutout from the Active Selection
+- Adds to Cutouts list
+- Clears Active Selection (LOCKED)
+- Selects the new Cutout in list (recommended)
+- Updates status: “Cutout created: <name>”
+
+B) Delete Cutout
+Enabled when:
+- A cutout is selected
+Action:
+- Confirmation dialog:
+  - “Delete cutout ‘<name>’? This cannot be undone.”
+- If yes: remove cutout, clear selection, update status.
+
+C) Rename
+- Inline rename in list OR rename field in Inspector.
+Rule:
+- Name auto-sanitized for export (spaces -> underscore), but display name remains what user typed.
+
+D) Visibility toggle
+- Checkbox controls whether the cutout’s overlay outline is shown when “Show Cutouts Overlay” is ON.
+
+============================================================
+5) Right Panel (Inspector) — v1
+============================================================
+Inspector shows one of two contexts:
+
+A) Active Selection Context
+Shown when:
+- Active Selection exists (even if a cutout is selected)
+Contents:
+- Title: “Active Selection”
+- Read-only bbox: X, Y, W, H (image pixels)
+- Preview thumbnail:
+  - Shows checkerboard background
+  - Shows the masked selection result (cropped to bbox)
+Buttons:
+- Clear Selection
+
+B) Selected Cutout Context
+Shown when:
+- No Active Selection exists AND a cutout is selected
+Contents:
+- Name (editable)
+- Read-only bbox: X, Y, W, H
+- Export settings:
+  - Format: PNG (locked)
+  - Scale: 1x (v1 default; 2x/custom later)
+  - Padding: 0 (editable optional; can be v1.1)
+- Notes (optional; can be v1.1)
+
+============================================================
+6) Bottom Export Bar — v1
+============================================================
+Elements:
+- Export Folder picker + display (path)
+- Export Selected
+- Export All
+- Status text
+
+Rules:
+A) Export Selected
+Enabled:
+- A cutout is selected
+Action:
+- Export only the selected cutout to the export folder as PNG
+
+B) Export All
+Enabled:
+- Cutouts.Count > 0
+Action:
+- Export all cutouts in list order
+
+C) Export folder missing
+- If no folder set, prompt folder picker before exporting.
+
+Naming:
+- Uses cutout name
+- Sanitizes filename
+- Collisions -> _01, _02 …
+
+============================================================
+7) Keyboard Shortcuts — v1 LOCKED
+============================================================
+File:
+- Ctrl+N: New project
+- Ctrl+O: Open project
+- Ctrl+S: Save project
+- Ctrl+Shift+S: Save as
+
+Canvas:
+- Ctrl+0: Fit
+- Ctrl+1: 100%
+- Esc:
+  - Cancel polygon lasso in progress
+  - If no polygon in progress: clears active selection (optional)
+- Enter (polygon lasso): close polygon
+- Backspace (polygon lasso): remove last point
+
+Edit:
+- Delete:
+  - If cutout selected AND no active selection: delete cutout (with confirm)
+  - Else if active selection exists: clear selection
+- Ctrl+Z / Ctrl+Y:
+  - Undo/redo selection/cutout operations (basic)
+
+Tools:
+- V: Select tool
+- L: Freehand lasso
+- P: Polygon lasso
+
+============================================================
+8) Undo/Redo Scope — v1
+============================================================
+Undoable actions (v1):
+- Create/replace active selection
+- Commit selection to cutout
+- Delete cutout
+- Rename cutout (optional)
+
+Not in v1:
+- Moving cutout masks (since movement not supported)
+
+============================================================
+9) Visual Feedback Requirements — v1
+============================================================
+- Active selection:
+  - Tinted overlay inside selection
+  - Outline visible
+  - In-progress drawing line visible while dragging/clicking
+- Polygon:
+  - Preview segment from last point to cursor
+  - Points visible as small nodes
+- Cutouts:
+  - Thin outlines for visible cutouts (toggleable)
+  - Selected cutout outline thicker
+
+Status text updates for:
+- Image loaded
+- Selection too small
+- Cutout created/deleted
+- Export finished + count
+
+============================================================
+10) Next Spec File to generate
+============================================================
+05_Project_Save_Load_and_JSON.txt
+Locks:
+- Project file schema final
+- Save/load UX flows (missing image, relink)
+- Settings storage (AppData vs portable)
+- Recent files (optional)

@@ -1,0 +1,5 @@
+09 — Big Update, Keep It Simple (v0.2 Draft)
+A) Multi-select + reorder cutouts
+B) Export prefix + naming controls
+C) Drag & drop image/project
+D) Move/nudge cutouts after commit
