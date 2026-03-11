@@ -35,4 +35,5 @@ Use clear commit messages, for example:
 
 ## Release process
 
-See [RELEASE.md](RELEASE.md).
+See [docs/RELEASE.md](../docs/RELEASE.md).
+

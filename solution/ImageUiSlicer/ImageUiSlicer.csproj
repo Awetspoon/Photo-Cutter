@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <ApplicationIcon>..\..\ImageUiSlicer_Icon.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\Icons\ImageUiSlicer_Icon.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -13,9 +13,8 @@
     <PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.9" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="..\..\brand\*.png" Link="Assets\Brand\%(Filename)%(Extension)" />
-    <Resource Include="..\..\png\*.png" Link="Assets\Icons\%(Filename)%(Extension)" />
-    <Resource Include="..\..\ImageUiSlicer_Icon.ico" Link="Assets\Icons\ImageUiSlicer_Icon.ico" />
+    <Resource Include="Assets\Brand\*.png" />
+    <Resource Include="Assets\Icons\*.png" />
+    <Resource Include="Assets\Icons\ImageUiSlicer_Icon.ico" />
   </ItemGroup>
 </Project>
-

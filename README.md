@@ -7,7 +7,7 @@
 
 Windows desktop app for cutting transparent PNG assets from UI mockups and screenshots.
 
-![Photo Cutter Wordmark](brand/ImageUiSlicer_Wordmark_Transparent.png)
+![Photo Cutter Wordmark](solution/ImageUiSlicer/Assets/Brand/ImageUiSlicer_Wordmark_Transparent.png)
 
 ## Download
 
@@ -62,30 +62,28 @@ dotnet build .\\solution\\ImageUiSlicer\\ImageUiSlicer.csproj -c Release
 Tag and push a semantic version to publish a GitHub Release:
 
 ```powershell
-git tag v1.0.2
-git push origin v1.0.2
+git tag v1.1.1
+git push origin v1.1.1
 ```
 
 Release workflow uploads one asset: `PhotoCutter.exe`.
 
-Detailed process: [RELEASE.md](RELEASE.md)
+Detailed process: [docs/RELEASE.md](docs/RELEASE.md)
 
 ## Repository Structure
 
 ```text
-solution/ImageUiSlicer/      # WPF app source
-brand/                       # branding assets
-png/                         # icon ladder PNGs
-docs/specs/                  # product and technical specs
-docs/archive/                # archived legacy docs
+.github/                    # workflows, templates, community standards
+docs/                       # release guide, changelog, specs, archives
+solution/ImageUiSlicer/     # WPF app source and assets
 ```
 
 ## Project Standards
 
-- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
-- Security: [SECURITY.md](SECURITY.md)
-- Changelog: [CHANGELOG.md](CHANGELOG.md)
-- Code of conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- Contributing: [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md)
+- Security: [.github/SECURITY.md](.github/SECURITY.md)
+- Changelog: [docs/CHANGELOG.md](docs/CHANGELOG.md)
+- Code of conduct: [.github/CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md)
 
 ## License
 
