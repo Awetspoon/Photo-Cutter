@@ -1,48 +1,71 @@
-# Photo Cutter (Image UI Slicer)
+﻿# Photo Cutter
 
-Photo Cutter is a Windows desktop app for turning full images/mockups into clean transparent PNG cutouts.
+[![Release](https://img.shields.io/github/v/release/Awetspoon/Photo-Cutter?display_name=release)](https://github.com/Awetspoon/Photo-Cutter/releases/latest)
+[![Build](https://img.shields.io/github/actions/workflow/status/Awetspoon/Photo-Cutter/ci.yml?branch=main&label=build)](https://github.com/Awetspoon/Photo-Cutter/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-0078D6)](https://github.com/Awetspoon/Photo-Cutter/releases/latest)
+
+Photo Cutter is a Windows desktop app for turning full mockups and screenshots into clean transparent PNG cutouts for app, UI, and game asset workflows.
+
+## Download
+
+- Latest release: [Download Photo Cutter](https://github.com/Awetspoon/Photo-Cutter/releases/latest)
+- Release assets include:
+  - `PhotoCutter.exe` (single-file app)
+  - `PhotoCutter-win-x64.zip`
 
 ## Features
 
-- Manual cutout tools: `Select`, `Lasso`, `Polygon`, and `Shapes`
-- Reusable custom shapes (save, apply, duplicate, and paste workflows)
-- Brush refinement (`Brush +` and `Brush -`) on active selections or cutouts
-- Inspector preview with optional split preview (before/after)
-- Cutout gallery window for quick visual review
-- PNG export presets with naming and edge outline options
+- Manual cutout tools: `Select`, `Lasso`, `Polygon`, `Shapes`
+- Reusable custom shapes (save, apply, duplicate, paste)
+- Brush refinement for active selection/cutout
+- Inspector preview with optional split compare
+- Cutout Gallery window for quick review
+- Export presets, naming controls, edge/outline options
 - Project save/load (`.iusproj`)
 
-## Requirements
+## Quick Start
+
+1. Open an image.
+2. Draw a selection using `Shapes`, `Lasso`, or `Polygon`.
+3. Click `Commit Cutout`.
+4. Optional: save a cutout as a reusable shape.
+5. Export selected/all cutouts as PNG.
+
+## Build From Source
+
+### Requirements
 
 - Windows 10/11
 - .NET SDK `8.0.124` or compatible (see `global.json`)
 
-## Setup
+### Restore
 
 ```powershell
-# from repo root
-dotnet restore .\solution\ImageUiSlicer\ImageUiSlicer.csproj
+dotnet restore .\\solution\\ImageUiSlicer\\ImageUiSlicer.csproj
 ```
 
-If you are restoring without internet but already have a local package cache, set `NUGET_PACKAGES` first.
-
-## Run
+### Run
 
 ```powershell
-dotnet run --project .\solution\ImageUiSlicer\ImageUiSlicer.csproj
+dotnet run --project .\\solution\\ImageUiSlicer\\ImageUiSlicer.csproj
 ```
 
-## Build
+### Release Publish (single EXE)
 
 ```powershell
-dotnet build .\solution\ImageUiSlicer\ImageUiSlicer.csproj
+dotnet publish .\\solution\\ImageUiSlicer\\ImageUiSlicer.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeAllContentForSelfExtract=true /p:EnableCompressionInSingleFile=true
 ```
 
-## Publish
+## Releasing
 
-```powershell
-dotnet publish .\solution\ImageUiSlicer\ImageUiSlicer.csproj -c Release -r win-x64 --self-contained false
-```
+- Tag format: `vX.Y.Z` (example: `v1.0.0`)
+- Pushing a version tag triggers GitHub Actions to:
+  - Build Release for Windows x64
+  - Produce single-file `PhotoCutter.exe`
+  - Upload release assets to GitHub Releases
+
+Full process: see [RELEASE.md](RELEASE.md).
 
 ## Folder Structure
 
@@ -53,25 +76,15 @@ solution/ImageUiSlicer/ViewModels
 solution/ImageUiSlicer/Services
 solution/ImageUiSlicer/Models
 solution/ImageUiSlicer/CanvasEngine
-brand/                       # brand assets
-png/                         # icon size ladder PNGs
+brand/                       # branding assets
+png/                         # icon ladder PNGs
 specs/                       # project/spec docs
 ```
 
-## Custom Shapes Quick Start
-
-1. Draw and commit a clean cutout.
-2. Select that cutout in the left list.
-3. Switch to `Shapes` tool.
-4. Click `Save Shape`.
-5. Pick it from the saved-shape dropdown next to `Shapes`.
-6. Click `Use Saved` to place it as an active selection, move/adjust, then `Commit Cutout`.
-7. Optional: enable `Grow` to scale it before placement.
-
 ## Screenshots
 
-Add screenshots here.
+Add product screenshots or GIF demos in this section.
 
 ## License
 
-MIT (see `LICENSE`).
+MIT. See [LICENSE](LICENSE).

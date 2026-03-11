@@ -1,0 +1,47 @@
+﻿name: Bug report
+description: Report a runtime bug or broken behavior.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Photo Cutter.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Clear summary of the bug and expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Exact clicks/inputs so we can reproduce.
+      placeholder: |
+        1. Open image ...
+        2. Select Polygon ...
+        3. Click Commit Cutout ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Release version or commit hash.
+      placeholder: v1.0.0
+  - type: dropdown
+    id: os
+    attributes:
+      label: Windows version
+      options:
+        - Windows 11
+        - Windows 10
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+      description: Paste errors or add screenshots.
