@@ -10,9 +10,7 @@ Photo Cutter is a Windows desktop app for turning full mockups and screenshots i
 ## Download
 
 - Latest release: [Download Photo Cutter](https://github.com/Awetspoon/Photo-Cutter/releases/latest)
-- Release assets include:
-  - `PhotoCutter.exe` (single-file app)
-  - `PhotoCutter-win-x64.zip`
+- Single-file download: `PhotoCutter.exe`
 
 ## Features
 
@@ -63,7 +61,7 @@ dotnet publish .\\solution\\ImageUiSlicer\\ImageUiSlicer.csproj -c Release -r wi
 - Pushing a version tag triggers GitHub Actions to:
   - Build Release for Windows x64
   - Produce single-file `PhotoCutter.exe`
-  - Upload release assets to GitHub Releases
+  - Upload release asset to GitHub Releases
 
 Full process: see [RELEASE.md](RELEASE.md).
 

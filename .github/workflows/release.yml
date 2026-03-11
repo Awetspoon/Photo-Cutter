@@ -59,7 +59,6 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force .\\release-assets | Out-Null
           Copy-Item .\\solution\\ImageUiSlicer\\bin\\Release\\net8.0-windows\\win-x64\\publish\\ImageUiSlicer.exe .\\release-assets\\PhotoCutter.exe -Force
-          Compress-Archive -Path .\\release-assets\\PhotoCutter.exe -DestinationPath .\\release-assets\\PhotoCutter-win-x64.zip -Force
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
@@ -69,4 +68,3 @@ jobs:
           generate_release_notes: true
           files: |
             release-assets/PhotoCutter.exe
-            release-assets/PhotoCutter-win-x64.zip
