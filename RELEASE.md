@@ -1,26 +1,29 @@
 ﻿# Release Guide
 
-This repo is set up to publish Photo Cutter through GitHub Releases.
+This repository publishes Photo Cutter through GitHub Releases.
 
-## Automated release path (recommended)
+## Automated release flow (recommended)
 
-1. Commit your changes on `main`.
-2. Create and push a version tag:
+1. Ensure `main` contains your final release commit.
+2. Create and push a semantic version tag:
+
    ```powershell
-   git tag v1.0.0
-   git push origin v1.0.0
+   git tag v1.0.2
+   git push origin v1.0.2
    ```
+
 3. GitHub Actions workflow `Release Windows App` will:
-   - Build the app in Release mode
-   - Publish single-file `PhotoCutter.exe`
-   - Upload release assets to GitHub Releases
+   - Restore and build the project
+   - Publish a single-file Windows executable
+   - Create/update a GitHub Release
+   - Upload one asset: `PhotoCutter.exe`
 
-## Manual trigger path
+## Manual release flow
 
-1. Open Actions -> `Release Windows App`.
+1. Open GitHub Actions -> `Release Windows App`.
 2. Click `Run workflow`.
-3. Enter tag (for example `v1.0.1`).
-4. Run and wait for release assets to upload.
+3. Enter a valid version tag (example `v1.0.2`).
+4. Run workflow and confirm release asset upload.
 
 ## Local publish command
 
@@ -28,7 +31,7 @@ This repo is set up to publish Photo Cutter through GitHub Releases.
 dotnet publish .\\solution\\ImageUiSlicer\\ImageUiSlicer.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeAllContentForSelfExtract=true /p:EnableCompressionInSingleFile=true /p:DebugType=None /p:DebugSymbols=false
 ```
 
-Output binary:
+Published binary output:
 
 ```text
 solution/ImageUiSlicer/bin/Release/net8.0-windows/win-x64/publish/ImageUiSlicer.exe

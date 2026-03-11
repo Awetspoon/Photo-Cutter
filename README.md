@@ -5,29 +5,31 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-0078D6)](https://github.com/Awetspoon/Photo-Cutter/releases/latest)
 
-Photo Cutter is a Windows desktop app for turning full mockups and screenshots into clean transparent PNG cutouts for app, UI, and game asset workflows.
+Windows desktop app for cutting transparent PNG assets from UI mockups and screenshots.
+
+![Photo Cutter Wordmark](brand/ImageUiSlicer_Wordmark_Transparent.png)
 
 ## Download
 
-- Latest release: [Download Photo Cutter](https://github.com/Awetspoon/Photo-Cutter/releases/latest)
-- Single-file download: `PhotoCutter.exe`
+- Latest release: [PhotoCutter.exe](https://github.com/Awetspoon/Photo-Cutter/releases/latest)
+- Distribution format: single-file Windows executable (`PhotoCutter.exe`)
 
-## Features
+## Core Features
 
-- Manual cutout tools: `Select`, `Lasso`, `Polygon`, `Shapes`
-- Reusable custom shapes (save, apply, duplicate, paste)
-- Brush refinement for active selection/cutout
+- Selection tools: `Select`, `Lasso`, `Polygon`, `Shapes`
+- Reusable custom shapes: save, apply, duplicate, paste
+- Brush refinement (`Brush +` / `Brush -`) on active selections and cutouts
 - Inspector preview with optional split compare
-- Cutout Gallery window for quick review
-- Export presets, naming controls, edge/outline options
-- Project save/load (`.iusproj`)
+- Cutout Gallery for fast visual review
+- Export presets, naming options, edge/outline controls
+- Project save/load support (`.iusproj`)
 
 ## Quick Start
 
 1. Open an image.
-2. Draw a selection using `Shapes`, `Lasso`, or `Polygon`.
+2. Draw a selection with `Shapes`, `Lasso`, or `Polygon`.
 3. Click `Commit Cutout`.
-4. Optional: save a cutout as a reusable shape.
+4. Optional: save selection as reusable shape.
 5. Export selected/all cutouts as PNG.
 
 ## Build From Source
@@ -35,7 +37,7 @@ Photo Cutter is a Windows desktop app for turning full mockups and screenshots i
 ### Requirements
 
 - Windows 10/11
-- .NET SDK `8.0.124` or compatible (see `global.json`)
+- .NET SDK 8.0.124+ (see `global.json`)
 
 ### Restore
 
@@ -49,39 +51,41 @@ dotnet restore .\\solution\\ImageUiSlicer\\ImageUiSlicer.csproj
 dotnet run --project .\\solution\\ImageUiSlicer\\ImageUiSlicer.csproj
 ```
 
-### Release Publish (single EXE)
+### Build
 
 ```powershell
-dotnet publish .\\solution\\ImageUiSlicer\\ImageUiSlicer.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeAllContentForSelfExtract=true /p:EnableCompressionInSingleFile=true
+dotnet build .\\solution\\ImageUiSlicer\\ImageUiSlicer.csproj -c Release
 ```
 
 ## Releasing
 
-- Tag format: `vX.Y.Z` (example: `v1.0.0`)
-- Pushing a version tag triggers GitHub Actions to:
-  - Build Release for Windows x64
-  - Produce single-file `PhotoCutter.exe`
-  - Upload release asset to GitHub Releases
+Tag and push a semantic version to publish a GitHub Release:
 
-Full process: see [RELEASE.md](RELEASE.md).
+```powershell
+git tag v1.0.2
+git push origin v1.0.2
+```
 
-## Folder Structure
+Release workflow uploads one asset: `PhotoCutter.exe`.
+
+Detailed process: [RELEASE.md](RELEASE.md)
+
+## Repository Structure
 
 ```text
 solution/ImageUiSlicer/      # WPF app source
-solution/ImageUiSlicer/Views # XAML views
-solution/ImageUiSlicer/ViewModels
-solution/ImageUiSlicer/Services
-solution/ImageUiSlicer/Models
-solution/ImageUiSlicer/CanvasEngine
 brand/                       # branding assets
 png/                         # icon ladder PNGs
-specs/                       # project/spec docs
+docs/specs/                  # product and technical specs
+docs/archive/                # archived legacy docs
 ```
 
-## Screenshots
+## Project Standards
 
-Add product screenshots or GIF demos in this section.
+- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Security: [SECURITY.md](SECURITY.md)
+- Changelog: [CHANGELOG.md](CHANGELOG.md)
+- Code of conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 
 ## License
 
